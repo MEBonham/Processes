@@ -13,6 +13,7 @@ and `clock_gettime()` should work just fine.
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <time.h>
 
 #define number_iter 1000000
@@ -21,6 +22,22 @@ and `clock_gettime()` should work just fine.
 int main()
 {
     // Your code here
+    uint64_t difference;
+    struct timespec start, end;
+    double total = 0;
+    
+    for (int i = 0; i < number_iter; i++)
+    {
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        write(STDOUT_FILENO, "", 0);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        difference = BILLION * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+        total += (double) difference;
+    }
+    double average = total / number_iter;
+    printf("Time per system call: %llu nanoseconds\n", (long long unsigned int) average);
     
     return 0;
 }
+
+// Result: 2349 nanoseconds.
